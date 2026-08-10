@@ -305,3 +305,17 @@ WHEN (SELECT COUNT(*) FROM VOLUNTEER WHERE MemberID = NEW.MemberID) > 0
 BEGIN
     SELECT RAISE(ABORT, 'This member already has a volunteer record');
 END;
+
+CREATE TRIGGER trg_event_audience_check
+BEFORE INSERT ON ATTENDANCE
+WHEN (SELECT TargetAudience FROM EVENT WHERE EventID = NEW.EventID) <> 'ALL_AGES'
+     AND (
+         CASE
+             WHEN (JULIANDAY('now') - JULIANDAY((SELECT DOB FROM MEMBER WHERE MemberID = NEW.MemberID))) / 365.25 < 13 THEN 'CHILDREN'
+             WHEN (JULIANDAY('now') - JULIANDAY((SELECT DOB FROM MEMBER WHERE MemberID = NEW.MemberID))) / 365.25 < 18 THEN 'TEENS'
+             ELSE 'ADULTS'
+         END
+     ) <> (SELECT TargetAudience FROM EVENT WHERE EventID = NEW.EventID)
+BEGIN
+    SELECT RAISE(ABORT, 'Member age does not match this event''s target audience');
+END;
