@@ -6,7 +6,7 @@ import os
 DB_PATH = "library.db"
 SCHEMA_PATH = "schema.sql"
 
-# ---------------------------------------------------------------- SETUP
+# SETUP
 if os.path.exists(DB_PATH):
     os.remove(DB_PATH)
 
@@ -15,7 +15,7 @@ con.execute("PRAGMA foreign_keys = ON;")
 con.executescript(open(SCHEMA_PATH).read())
 cur = con.cursor()
 
-# ---------------------------------------------------------------- PUBLISHER
+# PUBLISHER
 publishers = [
     ("Penguin Random House", "1745 Broadway, New York, NY", "212-555-0100"),
     ("HarperCollins", "195 Broadway, New York, NY", "212-555-0101"),
@@ -33,7 +33,7 @@ cur.executemany(
 )
 con.commit()
 
-# ------------------------------------------------------------------ AUTHOR
+# AUTHOR
 authors = [
     ("Haruki", "Murakami", "Japanese novelist known for surrealist fiction."),
     ("Isabel", "Allende", "Chilean-American writer of magical realism."),
@@ -53,7 +53,7 @@ cur.executemany(
 )
 con.commit()
 
-# ------------------------------------------------------------------- ITEM
+# ITEM
 # (Title, ItemType, PublisherID, PublicationYear, Genre, Language)
 items = [
     ("Kafka on the Shore", "PRINT_BOOK", 1, 2002, "Fiction", "English"),
@@ -123,7 +123,7 @@ item_id = {}
 for row in cur.execute("SELECT ItemID, Title FROM ITEM").fetchall():
     item_id.setdefault(row[1], row[0])  # first match if titles repeat
 
-# ---------------------------------------------------------- ISA subclasses
+# ISA subclasses
 print_books = [
     ("Kafka on the Shore", 480, "Fiction-M"),
     ("The House of the Spirits", 448, "Fiction-A"),
@@ -210,7 +210,7 @@ cur.executemany(
 )
 con.commit()
 
-# ------------------------------------------------------------- ITEM_AUTHOR
+# ITEM_AUTHOR
 item_author_pairs = [
     ("Kafka on the Shore", "Murakami"), ("The House of the Spirits", "Allende"),
     ("Sapiens: A Brief History of Humankind", "Harari"), ("Project Hail Mary", "Weir"),
@@ -230,7 +230,7 @@ cur.executemany(
 )
 con.commit()
 
-# --------------------------------------------------------------- ITEM_COPY
+# ITEM_COPY
 # Weak entity: (ItemID, CopyNumber). Give most items 1-2 copies.
 copy_rows = []
 copy_plan = [
@@ -258,8 +258,7 @@ cur.executemany(
 )
 con.commit()
 
-# ----------------------------------------------------------------- MEMBER
-# Email intentionally NOT unique: rows 2 and 4 (kids) share a parent's email.
+# MEMBER
 members = [
     ("Alice", "Nguyen", "alice.nguyen@example.com", "604-555-0111", "12 Maple St, Burnaby, BC", "1988-04-12", "2021-01-15"),
     ("Ben", "Carter", "family.carter@example.com", "604-555-0112", "45 Oak Ave, Burnaby, BC", "2016-09-01", "2022-03-22"),
@@ -281,7 +280,7 @@ cur.executemany(
 )
 con.commit()
 
-# ------------------------------------------------------------------- ROOM
+# ROOM
 rooms = [
     ("Reading Nook A", 20), ("Reading Nook B", 20), ("Community Hall", 80),
     ("Innovation Lab", 15), ("Gallery Room", 40), ("Story Time Corner", 25),
@@ -291,7 +290,7 @@ rooms = [
 cur.executemany("INSERT INTO ROOM (RoomName, Capacity) VALUES (?, ?)", rooms)
 con.commit()
 
-# ------------------------------------------------------------------ EVENT
+# EVENT
 events = [
     ("Murakami Book Club", "BOOK_CLUB", "Discussing Kafka on the Shore.", "2026-08-20", "18:00", "19:30", 1, "ADULTS"),
     ("Teen Manga Club", "BOOK_CLUB", "Monthly teen manga discussion.", "2026-08-21", "16:00", "17:00", 2, "TEENS"),
@@ -311,11 +310,11 @@ cur.executemany(
 )
 con.commit()
 
-# ------------------------------------------------------------- ATTENDANCE
+# ATTENDANCE
 attendance = [
-    (1, 1, "2026-08-10"), (2, 2, "2026-08-11"), (3, 1, "2026-08-11"),
+    (1, 1, "2026-08-10"), (2, 5, "2026-08-11"), (3, 1, "2026-08-11"),
     (4, 6, "2026-08-12"), (5, 10, "2026-08-12"), (6, 3, "2026-08-13"),
-    (7, 4, "2026-08-14"), (8, 10, "2026-08-14"), (9, 5, "2026-08-15"),
+    (7, 4, "2026-08-14"), (8, 10, "2026-08-14"), (9, 9, "2026-08-15"),
     (10, 7, "2026-08-15"), (11, 8, "2026-08-16"), (12, 9, "2026-08-16"),
 ]
 cur.executemany(
@@ -324,7 +323,7 @@ cur.executemany(
 )
 con.commit()
 
-# ------------------------------------------------------------------ STAFF
+# STAFF
 staff = [
     ("Susan", "Moore", "Library Director", 98000, "604-555-0201", "susan.moore@library.org", "2010-06-01"),
     ("Tom", "Baker", "Head Librarian", 72000, "604-555-0202", "tom.baker@library.org", "2012-02-15"),
@@ -344,7 +343,7 @@ cur.executemany(
 )
 con.commit()
 
-# --------------------------------------------------------- FUTURE_ACQUISITION
+# FUTURE_ACQUISITION
 acquisitions = [
     ("Fourth Wing", "PRINT_BOOK", 1, "2026-06-01", "HIGH", "ORDERED", 22.99),
     ("The Creative Act", "ONLINE_BOOK", 3, "2026-06-02", "MEDIUM", "CONSIDERING", 15.99),
@@ -364,7 +363,7 @@ cur.executemany(
 )
 con.commit()
 
-# ------------------------------------------------------------- VOLUNTEER
+# VOLUNTEER
 volunteers = [
     (2, "2023-01-01", "Shelving", "ACTIVE"), (4, "2023-03-15", "Event Setup", "ACTIVE"),
     (6, "2022-11-01", "Story Time Assistant", "ACTIVE"), (7, "2023-05-20", "Tech Help Desk", "ACTIVE"),
@@ -378,7 +377,7 @@ cur.executemany(
 )
 con.commit()
 
-# -------------------------------------------------------------- DONATION
+# DONATION
 donations = [
     (1, "The Night Circus", "PRINT_BOOK", "2026-06-01", "PENDING"),
     (3, "Old Jazz Vinyl Collection (5 records)", "RECORD", "2026-06-03", "PENDING"),
@@ -397,7 +396,7 @@ cur.executemany(
 )
 con.commit()
 
-# ---------------------------------------------------------- HELP_REQUEST
+# HELP_REQUEST
 help_requests = [
     (1, 4, "2026-07-01", "Finding sources for a research paper", "RESOLVED", "Pointed to JSTOR access."),
     (2, 5, "2026-07-02", "How to renew a loan online", "RESOLVED", "Walked through the portal."),
@@ -416,10 +415,7 @@ cur.executemany(
 )
 con.commit()
 
-# --------------------------------------------------------------- LOAN + FINE
-# Insert loans one at a time with cur.execute (need CopyNumber matched
-# to a real existing copy, and ReturnDate left NULL at first so the
-# late-fine trigger fires naturally on the later UPDATE).
+# LOAN + FINE
 loans_plan = [
     # (ItemID, CopyNumber, MemberID, CheckoutDate, DueDate, ReturnDate or None)
     (item_id["Kafka on the Shore"], 1, 1, "2026-06-20", "2026-07-04", "2026-07-03"),   # on time
@@ -464,7 +460,7 @@ cur.execute("UPDATE FINE SET Status = 'PAID', PaidDate = '2026-07-12' WHERE Fine
 cur.execute("UPDATE FINE SET Status = 'WAIVED' WHERE FineID = 5")
 con.commit()
 
-# ----------------------------------------------------------------- REPORT
+# REPORT
 print("Rows per table:")
 tables = [r[0] for r in cur.execute(
     "SELECT name FROM sqlite_master WHERE type='table' AND name <> 'sqlite_sequence' ORDER BY name"
