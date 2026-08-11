@@ -254,6 +254,13 @@ def menu_borrow_item(con):
 # return item
 def menu_return_item(con):
     member_id = prompt_int("Your Member ID: ")
+
+    cur = con.cursor()
+    cur.execute("SELECT 1 FROM MEMBER WHERE MemberID = ?", (member_id,))
+    if cur.fetchone() is None:
+        print("That is not a member ID.")
+        return
+
     open_loans = get_open_loans_for_member(con, member_id)
     if not open_loans:
         print("You have no items currently checked out.")
