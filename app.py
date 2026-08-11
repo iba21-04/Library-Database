@@ -17,7 +17,6 @@ from datetime import date, timedelta
 
 DB_PATH = "library.db"
 
-
 def get_connection():
     """Open a connection with foreign key enforcement turned on."""
     con = sqlite3.connect(DB_PATH)
@@ -25,9 +24,7 @@ def get_connection():
     return con
 
 
-# =====================================================================
 # 1. FIND AN ITEM
-# =====================================================================
 def find_item(con, keyword):
     """
     Search the catalog by (partial, case-insensitive) title or genre.
@@ -62,9 +59,7 @@ def list_copies(con, item_id):
     return cur.fetchall()
 
 
-# =====================================================================
 # 2. BORROW AN ITEM
-# =====================================================================
 def borrow_item(con, item_id, copy_number, member_id, loan_days=14):
     """
     Create a loan for the given (item, copy) and member. Relies on
@@ -84,9 +79,7 @@ def borrow_item(con, item_id, copy_number, member_id, loan_days=14):
     return cur.lastrowid
 
 
-# =====================================================================
 # 3. RETURN A BORROWED ITEM
-# =====================================================================
 def return_item(con, loan_id, return_date=None):
     """
     Mark a loan as returned. trg_loan_mark_returned frees the copy;
@@ -125,9 +118,7 @@ def get_open_loans_for_member(con, member_id):
     return cur.fetchall()
 
 
-# =====================================================================
 # 4. DONATE AN ITEM
-# =====================================================================
 def donate_item(con, item_title, item_type, member_id=None, donation_date=None):
     """
     Record a donation offer. member_id may be None for an anonymous donor.
@@ -144,9 +135,7 @@ def donate_item(con, item_title, item_type, member_id=None, donation_date=None):
     return cur.lastrowid
 
 
-# =====================================================================
 # 5. FIND AN EVENT
-# =====================================================================
 def find_event(con, keyword=None, audience=None):
     """
     Search upcoming events by keyword (name/description) and/or target
@@ -174,9 +163,7 @@ def find_event(con, keyword=None, audience=None):
     return cur.fetchall()
 
 
-# =====================================================================
 # 6. REGISTER FOR AN EVENT
-# =====================================================================
 def register_for_event(con, member_id, event_id, registration_date=None):
     """
     Register a member for an event. trg_event_capacity rejects the
@@ -192,9 +179,7 @@ def register_for_event(con, member_id, event_id, registration_date=None):
     con.commit()
 
 
-# =====================================================================
 # 7. VOLUNTEER FOR THE LIBRARY
-# =====================================================================
 def volunteer_signup(con, member_id, skill_area=None, start_date=None):
     """
     Register an existing member as a volunteer. trg_volunteer_no_duplicate
@@ -228,9 +213,7 @@ def ask_for_help(con, member_id, topic, notes=None, request_date=None):
     return cur.lastrowid
 
 
-# =====================================================================
 # CLI MENU
-# =====================================================================
 def prompt_int(msg):
     while True:
         raw = input(msg).strip()
@@ -238,7 +221,7 @@ def prompt_int(msg):
             return int(raw)
         print("  Please enter a whole number.")
 
-
+# find item
 def menu_find_item(con):
     keyword = input("Search by title or genre (leave blank to see everything): ").strip()
     results = find_item(con, keyword)   # empty string matches everything via LIKE '%%'
@@ -250,7 +233,7 @@ def menu_find_item(con):
         item_id, title, itype, genre, pub, avail, total = r
         print(f"{item_id:<7}{title[:38]:<40}{itype:<14}{(genre or ''):<12}{pub[:18]:<20}{avail}/{total}")
 
-
+# borrow item
 def menu_borrow_item(con):
     item_id = prompt_int("Item ID (use 'Find an item' first): ")
     copies = list_copies(con, item_id)
@@ -268,7 +251,7 @@ def menu_borrow_item(con):
     except sqlite3.IntegrityError as e:
         print(f"Could not complete the loan: {e}")
 
-
+# return item
 def menu_return_item(con):
     member_id = prompt_int("Your Member ID: ")
     open_loans = get_open_loans_for_member(con, member_id)
@@ -288,7 +271,7 @@ def menu_return_item(con):
     except (sqlite3.IntegrityError, ValueError) as e:
         print(f"Could not process the return: {e}")
 
-
+# donate item
 def menu_donate_item(con):
     title = input("Title of the item you'd like to donate: ").strip()
     print("Item type: PRINT_BOOK, ONLINE_BOOK, MAGAZINE, JOURNAL, RECORD")
@@ -303,7 +286,7 @@ def menu_donate_item(con):
     except sqlite3.IntegrityError as e:
         print(f"Could not record the donation: {e}")
 
-
+# find event
 def menu_find_event(con):
     keyword = input("Search by event name/description (blank for all): ").strip() or None
     print("Audience filter: CHILDREN, TEENS, ADULTS, ALL_AGES (blank for any)")
@@ -317,7 +300,7 @@ def menu_find_event(con):
         eid, name, etype, edate, start, end, room, aud, seats = r
         print(f"{eid:<8}{name[:30]:<32}{etype:<16}{edate:<12}{(start+'-'+end):<14}{room[:16]:<18}{aud:<10}{seats}")
 
-
+# register for event
 def menu_register_event(con):
     event_id = prompt_int("Event ID (use 'Find an event' first): ")
     member_id = prompt_int("Your Member ID: ")
@@ -335,7 +318,7 @@ def menu_register_event(con):
         else:
             print(f"Could not complete registration: {e}")
 
-
+# volunteer for library
 def menu_volunteer(con):
     member_id = prompt_int("Your Member ID: ")
     skill = input("Area of interest (e.g. Shelving, Event Setup, Front Desk): ").strip()
@@ -348,7 +331,7 @@ def menu_volunteer(con):
         else:
             print(f"Could not complete volunteer signup: {e}")
 
-
+# ask for help
 def menu_ask_help(con):
     member_id = prompt_int("Your Member ID: ")
     topic = input("What do you need help with? ").strip()

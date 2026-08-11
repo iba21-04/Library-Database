@@ -2,6 +2,8 @@
 
 import sqlite3
 import os
+import random
+random.seed(42)
 
 DB_PATH = "library.db"
 SCHEMA_PATH = "schema.sql"
@@ -231,13 +233,6 @@ cur.executemany(
 con.commit()
 
 # ITEM_COPY
-# Weak entity: (ItemID, CopyNumber). Every item gets at least 1 copy;
-# most get 2-5 so the catalog looks realistically stocked.
-import random
-random.seed(42)
-
-# A few titles are referenced by CopyNumber 2 in loans_plan below, so they
-# need a guaranteed minimum count regardless of the random draw.
 min_copies = {
     "Kafka on the Shore": 2,
     "Sapiens: A Brief History of Humankind": 2,
@@ -456,7 +451,7 @@ for (iid, cn, mid, checkout, due, ret) in loans_plan:
     loan_ids.append((cur.lastrowid, ret))
 con.commit()
 
-# Now apply returns via UPDATE so the checkout/return/late-fine triggers fire
+# pply returns via UPDATE so the checkout/return/late-fine triggers fire
 for loan_id, ret in loan_ids:
     if ret is not None:
         cur.execute("UPDATE LOAN SET ReturnDate = ? WHERE LoanID = ?", (ret, loan_id))

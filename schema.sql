@@ -1,9 +1,7 @@
 -- Step 4: Schema Library Management System
 PRAGMA foreign_keys = ON;
 
--- ---------------------------------------------------------------------
 -- PUBLISHER
--- ---------------------------------------------------------------------
 CREATE TABLE PUBLISHER (
     PublisherID  INTEGER PRIMARY KEY AUTOINCREMENT,
     Name         TEXT NOT NULL UNIQUE,
@@ -11,9 +9,7 @@ CREATE TABLE PUBLISHER (
     Phone        TEXT
 );
 
--- ---------------------------------------------------------------------
 -- AUTHOR
--- ---------------------------------------------------------------------
 CREATE TABLE AUTHOR (
     AuthorID   INTEGER PRIMARY KEY AUTOINCREMENT,
     FirstName  TEXT NOT NULL,
@@ -21,9 +17,7 @@ CREATE TABLE AUTHOR (
     Bio        TEXT
 );
 
--- ---------------------------------------------------------------------
 -- ITEM (superclass)  
--- ---------------------------------------------------------------------
 CREATE TABLE ITEM (
     ItemID           INTEGER PRIMARY KEY AUTOINCREMENT,
     Title            TEXT NOT NULL,
@@ -68,19 +62,15 @@ CREATE TABLE RECORD (
     DurationMinutes INTEGER CHECK (DurationMinutes > 0)
 );
 
--- ---------------------------------------------------------------------
 -- ITEM_AUTHOR 
--- ---------------------------------------------------------------------
 CREATE TABLE ITEM_AUTHOR (
     ItemID    INTEGER NOT NULL REFERENCES ITEM(ItemID)     ON DELETE CASCADE,
     AuthorID  INTEGER NOT NULL REFERENCES AUTHOR(AuthorID) ON DELETE CASCADE,
     PRIMARY KEY (ItemID, AuthorID)
 );
 
--- ---------------------------------------------------------------------
--- ITEM_COPY -- WEAK ENTITY: identity depends on ITEM.
+-- ITEM_COPY -- WEAK ENTITY
 -- Composite key (ItemID, CopyNumber); 
--- ---------------------------------------------------------------------
 CREATE TABLE ITEM_COPY (
     ItemID          INTEGER NOT NULL REFERENCES ITEM(ItemID) ON DELETE CASCADE,
     CopyNumber      INTEGER NOT NULL,
@@ -91,9 +81,7 @@ CREATE TABLE ITEM_COPY (
     PRIMARY KEY (ItemID, CopyNumber)
 );
 
--- ---------------------------------------------------------------------
 -- MEMBER  
--- ---------------------------------------------------------------------
 CREATE TABLE MEMBER (
     MemberID        INTEGER PRIMARY KEY AUTOINCREMENT,
     FirstName       TEXT NOT NULL,
@@ -116,9 +104,7 @@ SELECT
     END AS MembershipType
 FROM MEMBER;
 
--- ---------------------------------------------------------------------
 -- LOAN 
--- ---------------------------------------------------------------------
 CREATE TABLE LOAN (
     LoanID       INTEGER PRIMARY KEY AUTOINCREMENT,
     ItemID       INTEGER NOT NULL,
@@ -132,9 +118,7 @@ CREATE TABLE LOAN (
     CHECK (ReturnDate IS NULL OR ReturnDate >= CheckoutDate)
 );
 
--- ---------------------------------------------------------------------
 -- FINE 
--- ---------------------------------------------------------------------
 CREATE TABLE FINE (
     FineID     INTEGER PRIMARY KEY AUTOINCREMENT,
     LoanID     INTEGER NOT NULL UNIQUE REFERENCES LOAN(LoanID),
@@ -144,18 +128,14 @@ CREATE TABLE FINE (
     Status     TEXT NOT NULL DEFAULT 'UNPAID' CHECK (Status IN ('UNPAID','PAID','WAIVED'))
 );
 
--- ---------------------------------------------------------------------
 -- ROOM
--- ---------------------------------------------------------------------
 CREATE TABLE ROOM (
     RoomID    INTEGER PRIMARY KEY AUTOINCREMENT,
     RoomName  TEXT NOT NULL UNIQUE,
     Capacity  INTEGER NOT NULL CHECK (Capacity > 0)
 );
 
--- ---------------------------------------------------------------------
 -- EVENT
--- ---------------------------------------------------------------------
 CREATE TABLE EVENT (
     EventID        INTEGER PRIMARY KEY AUTOINCREMENT,
     Name           TEXT NOT NULL,
@@ -171,9 +151,7 @@ CREATE TABLE EVENT (
     CHECK (EndTime > StartTime)
 );
 
--- ---------------------------------------------------------------------
 -- ATTENDANCE 
--- ---------------------------------------------------------------------
 CREATE TABLE ATTENDANCE (
     MemberID         INTEGER NOT NULL REFERENCES MEMBER(MemberID),
     EventID          INTEGER NOT NULL REFERENCES EVENT(EventID),
@@ -181,9 +159,7 @@ CREATE TABLE ATTENDANCE (
     PRIMARY KEY (MemberID, EventID)
 );
 
--- ---------------------------------------------------------------------
 -- STAFF
--- ---------------------------------------------------------------------
 CREATE TABLE STAFF (
     EmployeeID  INTEGER PRIMARY KEY AUTOINCREMENT,
     FirstName   TEXT NOT NULL,
@@ -195,9 +171,7 @@ CREATE TABLE STAFF (
     HireDate    DATE NOT NULL
 );
 
--- ---------------------------------------------------------------------
 -- FUTURE_ACQUISITION
--- ---------------------------------------------------------------------
 CREATE TABLE FUTURE_ACQUISITION (
     AcquisitionID        INTEGER PRIMARY KEY AUTOINCREMENT,
     Title                TEXT NOT NULL,
@@ -211,9 +185,7 @@ CREATE TABLE FUTURE_ACQUISITION (
     EstimatedCost        REAL CHECK (EstimatedCost >= 0)
 );
 
--- ---------------------------------------------------------------------
 -- VOLUNTEER  
--- ---------------------------------------------------------------------
 CREATE TABLE VOLUNTEER (
     VolunteerID  INTEGER PRIMARY KEY AUTOINCREMENT,
     MemberID     INTEGER NOT NULL UNIQUE REFERENCES MEMBER(MemberID),
@@ -222,9 +194,7 @@ CREATE TABLE VOLUNTEER (
     Status       TEXT NOT NULL DEFAULT 'ACTIVE' CHECK (Status IN ('ACTIVE','INACTIVE'))
 );
 
--- ---------------------------------------------------------------------
 -- DONATION 
--- ---------------------------------------------------------------------
 CREATE TABLE DONATION (
     DonationID    INTEGER PRIMARY KEY AUTOINCREMENT,
     MemberID      INTEGER REFERENCES MEMBER(MemberID),
@@ -235,9 +205,7 @@ CREATE TABLE DONATION (
     Status        TEXT NOT NULL DEFAULT 'PENDING' CHECK (Status IN ('PENDING','ACCEPTED','REJECTED'))
 );
 
--- ---------------------------------------------------------------------
 -- HELP_REQUEST 
--- ---------------------------------------------------------------------
 CREATE TABLE HELP_REQUEST (
     RequestID    INTEGER PRIMARY KEY AUTOINCREMENT,
     MemberID     INTEGER NOT NULL REFERENCES MEMBER(MemberID),
@@ -248,9 +216,7 @@ CREATE TABLE HELP_REQUEST (
     Notes        TEXT
 );
 
--- =====================================================================
 -- TRIGGERS
--- =====================================================================
 
 -- (T1) Prevent borrowing a copy that isn't AVAILABLE
 CREATE TRIGGER trg_loan_copy_available
