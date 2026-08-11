@@ -260,6 +260,18 @@ BEGIN
     SELECT RAISE(ABORT, 'Item copy is not available for borrowing');
 END;
 
+-- (T1b) Prevent a member from having more than one open loan of the same item
+-- (i.e. two different copies of the same title) at the same time
+CREATE TRIGGER trg_loan_no_duplicate_item
+BEFORE INSERT ON LOAN
+WHEN (SELECT COUNT(*) FROM LOAN
+      WHERE MemberID = NEW.MemberID
+        AND ItemID = NEW.ItemID
+        AND ReturnDate IS NULL) > 0
+BEGIN
+    SELECT RAISE(ABORT, 'Member already has an open loan for this item');
+END;
+
 -- (T2) On checkout, flip the copy to BORROWED
 CREATE TRIGGER trg_loan_mark_borrowed
 AFTER INSERT ON LOAN
