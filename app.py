@@ -374,7 +374,7 @@ MENU = {
 
 def main():
     con = get_connection()
-    print("=== Welcome to the Library ===")
+    print("Welcome to the Library")
     while True:
         print("\nWhat would you like to do?")
         for key, (label, _) in MENU.items():
@@ -382,7 +382,7 @@ def main():
         print("  0. Exit")
         choice = input("> ").strip()
         if choice == "0":
-            print("Goodbye!")
+            print("Thank you for using the Library system.")
             break
         if choice in MENU:
             MENU[choice][1](con)

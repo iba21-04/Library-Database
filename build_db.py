@@ -231,19 +231,26 @@ cur.executemany(
 con.commit()
 
 # ITEM_COPY
-# Weak entity: (ItemID, CopyNumber). Give most items 1-2 copies.
+# Weak entity: (ItemID, CopyNumber). Every item gets at least 1 copy;
+# most get 2-5 so the catalog looks realistically stocked.
+import random
+random.seed(42)
+
+# A few titles are referenced by CopyNumber 2 in loans_plan below, so they
+# need a guaranteed minimum count regardless of the random draw.
+min_copies = {
+    "Kafka on the Shore": 2,
+    "Sapiens: A Brief History of Humankind": 2,
+    "Project Hail Mary": 2,
+}
+
+copy_plan = []
+for title in item_id:  # every title inserted into ITEM
+    floor = min_copies.get(title, 1)
+    n_copies = max(floor, random.randint(1, 5))
+    copy_plan.append((title, n_copies))
+
 copy_rows = []
-copy_plan = [
-    ("Kafka on the Shore", 2), ("The House of the Spirits", 1),
-    ("Sapiens: A Brief History of Humankind", 2), ("Project Hail Mary", 1),
-    ("Americanah", 1), ("Outliers", 1), ("Educated: A Memoir", 1),
-    ("Becoming", 1), ("The Night Circus", 1), ("National Geographic", 1),
-    ("TIME Magazine", 1), ("Nature", 1), ("The Lancet", 1),
-    ("Kind of Blue", 1), ("A Love Supreme", 1), ("Blue Train", 1),
-    ("Project Hail Mary", 1),  # second copy handled via CopyNumber below
-    ("The Remains of the Day", 1), ("Where the Crawdads Sing", 1),
-    ("The Midnight Library", 1), ("Cosmos", 1),
-]
 shelf_counter = {}
 for title, n_copies in copy_plan:
     start = shelf_counter.get(title, 0)

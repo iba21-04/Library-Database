@@ -1,4 +1,4 @@
--- Step 4: Schema creation for Library Management System
+-- Step 4: Schema Library Management System
 PRAGMA foreign_keys = ON;
 
 -- ---------------------------------------------------------------------
